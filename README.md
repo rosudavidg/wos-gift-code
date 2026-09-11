@@ -1,3 +1,4 @@
+[![Crawl WoS gift codes](https://github.com/rosudavidg/wos-gift-code/actions/workflows/crawler.yml/badge.svg)](https://github.com/rosudavidg/wos-gift-code/actions/workflows/crawler.yml)
 # wos-gift-code
 Whiteout Survival Gift Code Crawler
 
