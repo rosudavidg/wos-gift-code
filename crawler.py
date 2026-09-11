@@ -109,12 +109,12 @@ def build_discord_message(new_codes, checked_at=None):
 	if len(new_codes) == 1:
 		return (
 			"🎁 A new gift code is available!\n\n"
-			f"Redeem this code: 🎁 `{new_codes[0]}`"
+			f"Redeem this code:\n- 🎁 {new_codes[0]}"
 		)
 	elif new_codes:
-		code_list = "\n".join(f"- 🎁 `{code}`" for code in new_codes)
+		code_list = "\n".join(f"- 🎁 {code}" for code in new_codes)
 		return (
-			f"🎁 New gift codes are available! Found: {len(new_codes)}\n\n"
+			"🎁 New gift codes are available!\n\n"
 			f"Redeem these codes:\n{code_list}"
 		)
 
