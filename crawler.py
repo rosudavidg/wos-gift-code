@@ -105,28 +105,25 @@ def save_stored_codes(codes):
 
 
 def build_discord_message(new_codes, checked_at=None):
-	if checked_at is None:
-		checked_at = datetime.now(timezone.utc)
-	timestamp = checked_at.strftime("%Y-%m-%d %H:%M UTC")
-
 	if len(new_codes) == 1:
-		content = (
+		return (
 			"🎁 **A new WoS gift code is available!**\n\n"
 			f"Redeem this code: `{new_codes[0]}`"
 		)
 	elif new_codes:
 		code_list = "\n".join(f"- `{code}`" for code in new_codes)
-		content = (
+		return (
 			f"🎁 **{len(new_codes)} new WoS gift codes are available!**\n\n"
 			f"Redeem these codes:\n{code_list}"
 		)
-	else:
-		content = "🔎 **WoS gift code check**\n\nNo new gift codes are present."
 
+	if checked_at is None:
+		checked_at = datetime.now(timezone.utc)
+	timestamp = checked_at.strftime("%Y-%m-%d %H:%M UTC")
 	return (
-		f"{content}\n\n"
-		f"⏱️ Checked: `{timestamp}`\n"
-		f"🔗 [Open the gift-code page]({URL})"
+		"🔎 **WoS gift code check**\n\n"
+		"No new gift codes are present.\n\n"
+		f"⏱️ Checked: `{timestamp}`"
 	)
 
 
