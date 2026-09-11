@@ -1,5 +1,6 @@
 import json
 import os
+from datetime import datetime, timezone
 from html.parser import HTMLParser
 from time import sleep
 from urllib.error import HTTPError, URLError
@@ -103,6 +104,32 @@ def save_stored_codes(codes):
 		file.write("\n")
 
 
+def build_discord_message(new_codes, checked_at=None):
+	if checked_at is None:
+		checked_at = datetime.now(timezone.utc)
+	timestamp = checked_at.strftime("%Y-%m-%d %H:%M UTC")
+
+	if len(new_codes) == 1:
+		content = (
+			"🎁 **A new WoS gift code is available!**\n\n"
+			f"Redeem this code: `{new_codes[0]}`"
+		)
+	elif new_codes:
+		code_list = "\n".join(f"- `{code}`" for code in new_codes)
+		content = (
+			f"🎁 **{len(new_codes)} new WoS gift codes are available!**\n\n"
+			f"Redeem these codes:\n{code_list}"
+		)
+	else:
+		content = "🔎 **WoS gift code check**\n\nNo new gift codes are present."
+
+	return (
+		f"{content}\n\n"
+		f"⏱️ Checked: `{timestamp}`\n"
+		f"🔗 [Open the gift-code page]({URL})"
+	)
+
+
 def send_discord_message(message):
 	webhook_url = os.getenv("DISCORD_WEBHOOK_URL")
 	if not webhook_url:
@@ -139,13 +166,7 @@ if __name__ == "__main__":
 	retrieved_codes = get_gift_codes()
 	stored_codes = load_stored_codes()
 	new_codes = [code for code in retrieved_codes if code not in stored_codes]
-
-	if new_codes:
-		message = "New WoS gift codes:\n" + "\n".join(
-			f"- {code}" for code in new_codes
-		)
-	else:
-		message = "No new WoS gift codes are present."
+	message = build_discord_message(new_codes)
 
 	print(f"Retrieved codes: {retrieved_codes}")
 	print(f"New codes: {new_codes}")
