@@ -1,11 +1,14 @@
+import json
+import os
 from html.parser import HTMLParser
 from time import sleep
-from urllib.request import Request, urlopen
 from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
 
 
 URL = "https://wostools.net/gift-codes"
 MAX_ATTEMPTS = 3
+DISCORD_MAX_MESSAGE_LENGTH = 2000
 
 
 class GiftCodeParser(HTMLParser):
@@ -79,5 +82,26 @@ def get_gift_codes():
 	return parser.codes
 
 
+def send_discord_message(codes):
+	webhook_url = os.getenv("DISCORD_WEBHOOK_URL")
+	if not webhook_url:
+		return
+
+	body = "WoS gift codes:\n" + "\n".join(f"- {code}" for code in codes)
+	if len(body) > DISCORD_MAX_MESSAGE_LENGTH:
+		raise RuntimeError("The gift-code message exceeds Discord's 2,000-character limit.")
+
+	request = Request(
+		webhook_url,
+		data=json.dumps({"content": body}).encode("utf-8"),
+		headers={"Content-Type": "application/json"},
+		method="POST",
+	)
+	with urlopen(request, timeout=30) as response:
+		response.read()
+
+
 if __name__ == "__main__":
-	print(get_gift_codes())
+	gift_codes = get_gift_codes()
+	print(gift_codes)
+	send_discord_message(gift_codes)

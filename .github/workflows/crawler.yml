@@ -21,4 +21,6 @@ jobs:
           python-version: "3.x"
 
       - name: Crawl gift codes
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: python crawler.py
