@@ -158,13 +158,14 @@ def send_discord_message(message):
 
 
 if __name__ == "__main__":
-	test_messages = [
-		["TEST_SINGLE_CODE"],
-		["TEST_FIRST_CODE", "TEST_SECOND_CODE"],
-		[],
-	]
+	retrieved_codes = get_gift_codes()
+	stored_codes = load_stored_codes()
+	new_codes = [code for code in retrieved_codes if code not in stored_codes]
+	message = build_discord_message(new_codes)
 
-	for new_codes in test_messages:
-		message = build_discord_message(new_codes)
-		print(message)
-		send_discord_message(message)
+	print(f"Retrieved codes: {retrieved_codes}")
+	print(f"New codes: {new_codes}")
+	send_discord_message(message)
+	save_stored_codes(stored_codes + [
+		code for code in retrieved_codes if code not in stored_codes
+	])
