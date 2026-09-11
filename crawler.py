@@ -3,6 +3,7 @@ import os
 from datetime import datetime, timezone
 from html.parser import HTMLParser
 from time import sleep
+from zoneinfo import ZoneInfo
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
@@ -107,24 +108,21 @@ def save_stored_codes(codes):
 def build_discord_message(new_codes, checked_at=None):
 	if len(new_codes) == 1:
 		return (
-			"🎁 **A new WoS gift code is available!**\n\n"
-			f"Redeem this code: `{new_codes[0]}`"
+			"🎁 A new gift code is available!\n\n"
+			f"Redeem this code: 🎁 `{new_codes[0]}`"
 		)
 	elif new_codes:
-		code_list = "\n".join(f"- `{code}`" for code in new_codes)
+		code_list = "\n".join(f"- 🎁 `{code}`" for code in new_codes)
 		return (
-			f"🎁 **{len(new_codes)} new WoS gift codes are available!**\n\n"
+			f"🎁 New gift codes are available! Found: {len(new_codes)}\n\n"
 			f"Redeem these codes:\n{code_list}"
 		)
 
 	if checked_at is None:
 		checked_at = datetime.now(timezone.utc)
-	timestamp = checked_at.strftime("%Y-%m-%d %H:%M UTC")
-	return (
-		"🔎 **WoS gift code check**\n\n"
-		"No new gift codes are present.\n\n"
-		f"⏱️ Checked: `{timestamp}`"
-	)
+	bucharest_time = checked_at.astimezone(ZoneInfo("Europe/Bucharest"))
+	timestamp = bucharest_time.strftime("%Y-%m-%d %H:%M %Z (Europe/Bucharest)")
+	return f"No new gift codes are present. Checked: `{timestamp}`"
 
 
 def send_discord_message(message):
