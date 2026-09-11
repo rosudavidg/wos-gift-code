@@ -94,11 +94,24 @@ def send_discord_message(codes):
 	request = Request(
 		webhook_url,
 		data=json.dumps({"content": body}).encode("utf-8"),
-		headers={"Content-Type": "application/json"},
+		headers={
+			"Content-Type": "application/json",
+			"User-Agent": "wos-gift-code-crawler/1.0",
+		},
 		method="POST",
 	)
-	with urlopen(request, timeout=30) as response:
-		response.read()
+	try:
+		with urlopen(request, timeout=30) as response:
+			response.read()
+	except HTTPError as error:
+		if error.code == 403:
+			raise RuntimeError(
+				"Discord rejected DISCORD_WEBHOOK_URL (HTTP 403). "
+				"Recreate the webhook and update the GitHub secret with its complete URL."
+			) from error
+		raise RuntimeError(
+			f"Discord webhook request failed with HTTP {error.code}."
+		) from error
 
 
 if __name__ == "__main__":
