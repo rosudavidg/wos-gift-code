@@ -1,4 +1,6 @@
 from html.parser import HTMLParser
+import sys
+from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 
@@ -50,8 +52,12 @@ class GiftCodeParser(HTMLParser):
 
 def get_gift_codes():
 	request = Request(URL, headers={"User-Agent": "Mozilla/5.0"})
-	with urlopen(request) as response:
-		page = response.read().decode("utf-8", errors="ignore")
+	try:
+		with urlopen(request) as response:
+			page = response.read().decode("utf-8", errors="ignore")
+	except (HTTPError, URLError) as error:
+		print(f"Failed to fetch gift codes: {error}", file=sys.stderr)
+		return []
 
 	parser = GiftCodeParser()
 	parser.feed(page)
