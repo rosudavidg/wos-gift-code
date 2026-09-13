@@ -10,8 +10,10 @@ from urllib.request import Request, urlopen
 
 URL = "https://wostools.net/gift-codes"
 STORED_CODES_FILE = "known_gift_codes.json"
+LOG_FILE = "crawler.log"
 MAX_ATTEMPTS = 3
 DISCORD_MAX_MESSAGE_LENGTH = 2000
+HEARTBEAT_INTERVAL_HOURS = 24
 
 
 class GiftCodeParser(HTMLParser):
@@ -85,24 +87,48 @@ def get_gift_codes():
 	return parser.codes
 
 
-def load_stored_codes():
+def load_stored_data():
 	try:
 		with open(STORED_CODES_FILE, encoding="utf-8") as file:
-			stored_codes = json.load(file)
+			data = json.load(file)
 	except FileNotFoundError:
-		return []
+		return {"codes": [], "last_status_sent_at": None}
 
-	if not isinstance(stored_codes, list) or not all(
-		isinstance(code, str) for code in stored_codes
-	):
-		raise RuntimeError(f"{STORED_CODES_FILE} must contain a JSON list of strings.")
-	return stored_codes
+	if isinstance(data, list):
+		return {
+			"codes": [code for code in data if isinstance(code, str)],
+			"last_status_sent_at": None,
+		}
+
+	if isinstance(data, dict):
+		codes = data.get("codes", [])
+		if not isinstance(codes, list) or not all(
+			isinstance(code, str) for code in codes
+		):
+			raise RuntimeError(f"{STORED_CODES_FILE} 'codes' field must be a list of strings.")
+		return {
+			"codes": codes,
+			"last_status_sent_at": data.get("last_status_sent_at"),
+		}
+
+	raise RuntimeError(f"{STORED_CODES_FILE} must contain a JSON object or list.")
 
 
-def save_stored_codes(codes):
+def save_stored_data(data):
 	with open(STORED_CODES_FILE, "w", encoding="utf-8") as file:
-		json.dump(codes, file, indent=2)
+		json.dump(data, file, indent=2)
 		file.write("\n")
+
+
+def log_event(message, event_time=None):
+	if event_time is None:
+		event_time = datetime.now(timezone.utc)
+	bucharest_time = event_time.astimezone(ZoneInfo("Europe/Bucharest"))
+	timestamp = bucharest_time.strftime("%Y-%m-%d %H:%M:%S %Z")
+	log_line = f"[{timestamp}] {message}\n"
+	print(message)
+	with open(LOG_FILE, "a", encoding="utf-8") as file:
+		file.write(log_line)
 
 
 def build_discord_message(new_codes, checked_at=None):
@@ -122,7 +148,7 @@ def build_discord_message(new_codes, checked_at=None):
 		checked_at = datetime.now(timezone.utc)
 	bucharest_time = checked_at.astimezone(ZoneInfo("Europe/Bucharest"))
 	timestamp = bucharest_time.strftime("%Y-%m-%d %H:%M %Z (Europe/Bucharest)")
-	return f"No new gift codes are present. Checked: `{timestamp}`"
+	return f"No new gift codes in the last 24 hours. Checked: `{timestamp}`"
 
 
 def send_discord_message(message):
@@ -158,14 +184,43 @@ def send_discord_message(message):
 
 
 if __name__ == "__main__":
-	retrieved_codes = get_gift_codes()
-	stored_codes = load_stored_codes()
-	new_codes = [code for code in retrieved_codes if code not in stored_codes]
-	message = build_discord_message(new_codes)
+	now = datetime.now(timezone.utc)
+	log_event("Crawler started: fetching gift codes from website...", now)
 
-	print(f"Retrieved codes: {retrieved_codes}")
-	print(f"New codes: {new_codes}")
-	send_discord_message(message)
-	save_stored_codes(stored_codes + [
-		code for code in retrieved_codes if code not in stored_codes
-	])
+	retrieved_codes = get_gift_codes()
+	data = load_stored_data()
+	stored_codes = data.get("codes", [])
+	new_codes = [code for code in retrieved_codes if code not in stored_codes]
+
+	log_event(f"Retrieved codes: {retrieved_codes}", now)
+	log_event(f"New codes: {new_codes}", now)
+
+	if new_codes:
+		message = build_discord_message(new_codes)
+		send_discord_message(message)
+		data["codes"] = stored_codes + new_codes
+		data["last_status_sent_at"] = now.isoformat()
+		save_stored_data(data)
+		log_event(f"Found new codes ({len(new_codes)}) and sent message to Discord.", now)
+	else:
+		last_sent_str = data.get("last_status_sent_at")
+		should_send_heartbeat = False
+		if last_sent_str:
+			try:
+				last_sent_dt = datetime.fromisoformat(last_sent_str.replace("Z", "+00:00"))
+				if (now - last_sent_dt).total_seconds() >= HEARTBEAT_INTERVAL_HOURS * 3600:
+					should_send_heartbeat = True
+			except (ValueError, TypeError):
+				should_send_heartbeat = True
+		else:
+			data["last_status_sent_at"] = now.isoformat()
+			save_stored_data(data)
+
+		if should_send_heartbeat:
+			message = build_discord_message([], checked_at=now)
+			send_discord_message(message)
+			data["last_status_sent_at"] = now.isoformat()
+			save_stored_data(data)
+			log_event("No new codes found (24h elapsed) and sent 24h status message to Discord.", now)
+		else:
+			log_event("No new codes found and did not send message (<24h elapsed).", now)
