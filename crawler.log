@@ -106,3 +106,7 @@
 [2026-09-14 17:00:51 EEST] Retrieved codes: ['GuDokYTKOR', '2ndYoutubeKR', '1stYoutubeKR']
 [2026-09-14 17:00:51 EEST] New codes: []
 [2026-09-14 17:00:51 EEST] No new codes found (24h elapsed) and sent 24h status message to Discord.
+[2026-09-14 18:00:49 EEST] Crawler started: fetching gift codes from website...
+[2026-09-14 18:00:49 EEST] Retrieved codes: ['GuDokYTKOR', '2ndYoutubeKR', '1stYoutubeKR']
+[2026-09-14 18:00:49 EEST] New codes: []
+[2026-09-14 18:00:49 EEST] No new codes found and did not send message (<24h elapsed).
