@@ -966,3 +966,7 @@
 [2026-09-23 18:00:54 EEST] Retrieved codes: ['FallEquinox26', 'JPsilverweek26', 'GuDokYTKOR', '2ndYoutubeKR', '1stYoutubeKR']
 [2026-09-23 18:00:54 EEST] New codes: ['FallEquinox26']
 [2026-09-23 18:00:54 EEST] Found new codes (1) and sent message to Discord.
+[2026-09-23 19:00:52 EEST] Crawler started: fetching gift codes from website...
+[2026-09-23 19:00:52 EEST] Retrieved codes: ['FallEquinox26', 'JPsilverweek26', 'GuDokYTKOR', '2ndYoutubeKR', '1stYoutubeKR']
+[2026-09-23 19:00:52 EEST] New codes: []
+[2026-09-23 19:00:52 EEST] No new codes found and did not send message (<24h elapsed).
