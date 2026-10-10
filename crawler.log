@@ -2118,3 +2118,7 @@
 [2026-10-10 15:00:46 EEST] Retrieved codes: ['HangulDay2026', 'GuDokYTKOR', '2ndYoutubeKR']
 [2026-10-10 15:00:46 EEST] New codes: []
 [2026-10-10 15:00:46 EEST] No new codes found and did not send message (<24h elapsed).
+[2026-10-10 16:00:47 EEST] Crawler started: fetching gift codes from website...
+[2026-10-10 16:00:47 EEST] Retrieved codes: ['INS400K', 'HangulDay2026', 'GuDokYTKOR', '2ndYoutubeKR']
+[2026-10-10 16:00:47 EEST] New codes: ['INS400K']
+[2026-10-10 16:00:47 EEST] Found new codes (1) and sent message to Discord.
