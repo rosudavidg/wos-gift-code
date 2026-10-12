@@ -3078,3 +3078,7 @@
 [2026-10-12 12:10:27 EEST] Retrieved codes: ['INS400K', 'GuDokYTKOR', '2ndYoutubeKR']
 [2026-10-12 12:10:27 EEST] New codes: []
 [2026-10-12 12:10:27 EEST] No new codes found and did not send message (<24h elapsed).
+[2026-10-12 12:15:24 EEST] Crawler started: fetching gift codes from website...
+[2026-10-12 12:15:24 EEST] Retrieved codes: ['SPORTSDAY26', 'INS400K', 'GuDokYTKOR', '2ndYoutubeKR']
+[2026-10-12 12:15:24 EEST] New codes: ['SPORTSDAY26']
+[2026-10-12 12:15:24 EEST] Found new codes (1) and sent message to Discord.
