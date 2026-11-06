@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: gift-code-crawler
@@ -25,16 +25,6 @@ jobs:
       - name: Crawl gift codes
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          GIFT_CODE_API_URL: ${{ vars.GIFT_CODE_API_URL }}
+          GIFT_CODE_API_KEY: ${{ secrets.GIFT_CODE_API_KEY }}
         run: python crawler.py
-
-      - name: Commit stored gift codes and logs
-        run: |
-          if git diff --quiet -- known_gift_codes.json crawler.log; then
-            echo "No changes to store"
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add known_gift_codes.json crawler.log
-          git commit -m "Update stored gift codes and logs"
-          git push
