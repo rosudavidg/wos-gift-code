@@ -148,6 +148,7 @@ activemq-data/
 
 # Environments
 .env
+.env.*
 .envrc
 .venv
 env/
@@ -215,3 +216,8 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Local crawler artifacts
+/crawler.log
+/known_gift_codes.json
+/.vscode/

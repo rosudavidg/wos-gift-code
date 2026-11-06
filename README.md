@@ -2,11 +2,11 @@
 
 # wos-gift-code
 
-The crawler reads the Known Gift Codes section of wostools.net and submits each successful, nonempty observation to the State 3022 admin API. Firestore is the source of truth; the crawler does not update or commit the legacy JSON or log. A missing section or empty result fails the run without changing active codes.
+The crawler reads the Known Gift Codes section of wostools.net and submits each successful, nonempty observation to the State 3022 admin API. Firestore is the source of truth; the crawler logs to stdout and does not create a pull request. A missing section or empty result fails the run without changing active codes.
 
 ## Deploy and migrate
 
-1. Pause the old workflow and back up the latest `known_gift_codes.json`. Deploy the updated `state-3022-admin` server with Firestore configured.
+1. If migrating an existing installation, pause the old workflow and obtain a backup of its latest `known_gift_codes.json`; the legacy file is no longer included in this repository. Deploy the updated `state-3022-admin` server with Firestore configured.
 2. Generate a dedicated random key with `openssl rand -hex 32`. Set `GIFT_CODE_API_KEY` on the admin server and redeploy/restart it. Keep this key private and separate from `AUTH_SECRET`.
 3. From this repository, set the server base URL and key in your local shell. Use the actual HTTPS URL without `/gift-codes` at the end. HTTP is allowed only for localhost. For example, in zsh:
 
@@ -28,4 +28,6 @@ The public `GET /gift-codes` returns `activeCodes`, `latestNewCodes`, `lastNewCo
 
 The protected crawler endpoints track `pendingNewCodes` and `lastStatusSentAt`. New codes are sent to Discord immediately, and a no-new-codes status is sent at most once per 24 hours since the most recent discovery or status message. A missing or failing webhook leaves new-code alerts pending for a later run. Notifications are acknowledged only after Discord accepts them; if the acknowledgment fails after Discord accepts a message, the next run may send it again. Concurrent external crawler runs can also duplicate notifications, so use the workflow's concurrency group and avoid running additional crawlers at the same time.
 
-Run tests with `python3 -m unittest -v test_crawler`. The tracked legacy JSON and log are retained only for history and migration; they are not updated by the new workflow.
+Run tests with `python3 -m unittest -v test_crawler`. The legacy JSON and log are ignored locally and remain available in Git history.
+
+Use `./push "Commit message"` to stage all non-ignored changes, commit them, and push. Review `git status` first; never commit credentials or local backups.
